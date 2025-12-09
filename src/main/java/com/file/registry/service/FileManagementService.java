@@ -12,11 +12,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.file.registry.exception.ConflictException;
-import com.file.registry.exception.FileProcessingException;
+import com.file.registry.exception.InternalErrorException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,11 +45,11 @@ public class FileManagementService {
     try {
       Files.createDirectories(storagePath);
     } catch (IOException e) {
-      throw new FileProcessingException("Failed to create storage directory: ", e);
+      throw new InternalErrorException("Failed to create storage directory: ", e);
     }
   }
 
-  public void upload(MultipartFile file) {
+  public Resource upload(MultipartFile file) {
     String fileName =
         file.getOriginalFilename().replaceAll(XML_EXTENSION, JSON_EXTENSION);
     Path filePath = storagePath.resolve(fileName);
@@ -55,17 +57,28 @@ public class FileManagementService {
     if (Files.exists(filePath)) {
       throw new ConflictException("Failed: file with provided name already exist!");
     }
+    log.info("Successfully uploaded file: {}", fileName);
+    return save(file, fileName);
+  }
 
+  public Resource update(MultipartFile file) {
+    String fileName =
+        file.getOriginalFilename().replaceAll(XML_EXTENSION, JSON_EXTENSION);
+    log.info("Successfully updated file: {}", fileName);
+    return save(file, fileName);
+  }
+
+  private Resource save(MultipartFile file, String fileName) {
     try {
       JsonNode xmlTree = xmlMapper.readTree(file.getInputStream());
       String jsonContent = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(xmlTree);
 
       Path jsonPath = storagePath.resolve(fileName);
-      Files.writeString(jsonPath, jsonContent);
-      log.info("Successfully uploaded file: {}", fileName);
+      Path path = Files.writeString(jsonPath, jsonContent);
+      return new FileSystemResource(path);
     } catch (IOException e) {
-      log.error("Failed to upload file: {}", fileName, e);
-      throw new FileProcessingException("Failed to process file: ", e);
+      log.error("Failed to updated file: {}", fileName, e);
+      throw new InternalErrorException("Failed to process file: ", e);
     }
   }
 }
