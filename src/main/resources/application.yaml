@@ -1,0 +1,14 @@
+server:
+  servlet:
+    context-path: /file-management/api/
+
+spring:
+  profiles:
+    active: ${ACTIVE_PROFILE:dev}
+  application:
+   name: file-management-service
+
+app:
+  file-storage:
+    path: ${FILE_STORAGE_PATH:${user.dir}/files}
+

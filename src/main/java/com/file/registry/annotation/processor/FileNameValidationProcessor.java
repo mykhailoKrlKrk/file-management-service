@@ -1,0 +1,22 @@
+package com.file.registry.annotation.processor;
+
+import java.util.Objects;
+
+import com.file.registry.annotation.ValidFileName;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+import org.springframework.web.multipart.MultipartFile;
+
+public class FileNameValidationProcessor implements ConstraintValidator<ValidFileName, MultipartFile> {
+
+  private static final String FILE_NAME_PATTERN = "^[a-zA-Z0-9]+_\\d{1,2}\\.\\d{1,2}\\.\\d{4}\\.xml$";
+
+  @Override
+  public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
+    if (file == null || file.isEmpty() || Objects.isNull(file.getOriginalFilename())) {
+      return false;
+    }
+    return file.getOriginalFilename().matches(FILE_NAME_PATTERN);
+  }
+}
+
