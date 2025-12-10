@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public class ConflictException extends RestException {
 
-  public ConflictException(String reason) {
-    super(HttpStatus.CONFLICT, reason);
-  }
+    public ConflictException(String reason) {
+        super(HttpStatus.CONFLICT, reason);
+    }
 }

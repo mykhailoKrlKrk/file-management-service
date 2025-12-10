@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 public class NotFoundException extends RestException {
 
-  public NotFoundException(@Nullable String reason) {
-    super(HttpStatus.NOT_FOUND, reason);
-  }
+    public NotFoundException(@Nullable String reason) {
+        super(HttpStatus.NOT_FOUND, reason);
+    }
 }

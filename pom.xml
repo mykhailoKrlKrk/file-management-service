@@ -18,7 +18,14 @@
 
     <properties>
         <java.version>21</java.version>
+        <checkstyleVersion>8.29</checkstyleVersion>
         <springdoc.version>3.0.0</springdoc.version>
+        <puppycrawl.tools.version>9.1</puppycrawl.tools.version>
+        <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.checkstyle.plugin.configLocation>
+            /Users/mihailokuryk/Documents/new/FileRegistry/checkstyle/checkstyle.xml
+        </maven.checkstyle.plugin.configLocation>
     </properties>
 
     <dependencies>
@@ -77,6 +84,36 @@
                             <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${puppycrawl.tools.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                        <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+                    </sourceDirectories>
+                    <configLocation>${maven.checkstyle.plugin.configLocation}</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <linkXRef>false</linkXRef>
                 </configuration>
             </plugin>
             <plugin>
