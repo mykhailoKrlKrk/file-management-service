@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    active: ${ACTIVE_PROFILE:test}
+  application:
+    name: file-management-service
+
+app:
+  file-storage:
+    path: ${FILE_STORAGE_PATH:src/test/resources/storage}

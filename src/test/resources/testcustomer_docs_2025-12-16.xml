@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customerData>
+    <customer>
+        <id>12345</id>
+        <name>John Doe</name>
+        <email>john.doe@example.com</email>
+    </customer>
+
+    <order>
+        <orderId>9876</orderId>
+        <type>standard</type>
+        <amount>250.50</amount>
+        <date>2025-01-10</date>
+    </order>
+</customerData>
