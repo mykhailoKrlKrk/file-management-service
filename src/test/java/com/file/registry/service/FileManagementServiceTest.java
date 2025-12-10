@@ -17,6 +17,7 @@ import com.file.registry.exception.ConflictException;
 import com.file.registry.exception.NotFoundException;
 import com.file.registry.properties.StorageProperties;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -25,12 +26,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 
-@SpringBootTest
 public class FileManagementServiceTest {
 
     public static final String STORAGE_FILE = "storage";
@@ -293,16 +292,20 @@ public class FileManagementServiceTest {
     }
 
     private MockMultipartFile createMultipartFileFromResource() throws IOException {
-        ClassPathResource xmlResource = new ClassPathResource(
-                com.file.registry.constants.TestApplicationConstants.XML_FILE_NAME);
-        byte[] xmlBytes = xmlResource.getInputStream().readAllBytes();
+        String testFileName = "testcustomer_docs_2025-12-16.xml";
 
-        return new MockMultipartFile(
-                "file",
-                com.file.registry.constants.TestApplicationConstants.XML_FILE_NAME,
-                "application/xml",
-                xmlBytes
-        );
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(testFileName)) {
+            if (is == null) {
+                throw new IllegalStateException("Test resource not found on classpath: " + testFileName);
+            }
+            byte[] xmlBytes = is.readAllBytes();
+            return new MockMultipartFile(
+                    "file",
+                    testFileName,
+                    "application/xml",
+                    xmlBytes
+            );
+        }
     }
 
     private MockMultipartFile createMultipartFileFromResource(String resourceName) throws IOException {
