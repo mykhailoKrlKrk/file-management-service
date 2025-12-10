@@ -122,7 +122,7 @@ public class FileManagementController {
     @GetMapping("/{fileName}")
     public ResponseEntity<Resource> getByName(
             @Parameter(
-                    description = "File name in the format <customerName>_<type>_<dd.mm.yyyy>.xml",
+                     description = "File name in the format <customerName>_<type>_<dd.mm.yyyy>.xml",
                     example = "acme_report_12.10.2025.xml",
                     required = true
             )

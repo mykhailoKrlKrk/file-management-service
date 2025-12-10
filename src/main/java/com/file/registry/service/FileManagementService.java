@@ -48,22 +48,6 @@ public class FileManagementService {
         this.jsonMapper = jsonMapper;
     }
 
-    private static List<String> getFilesByDirectory(String searchIndex, Path targetDirectory) {
-        if (!Files.exists(targetDirectory)) {
-            log.info("Files by provided index is not found!");
-            return List.of();
-        }
-
-        try (Stream<Path> stream = Files.list(targetDirectory)) {
-            return stream.filter(Files::isRegularFile)
-                    .map(path -> path.getFileName().toString())
-                    .toList();
-        } catch (IOException e) {
-            log.error("Failed to list files by index: {}", searchIndex, e);
-            throw new InternalErrorException("Failed to get files by index: " + searchIndex, e);
-        }
-    }
-
     public Resource upload(MultipartFile file) {
         String fileName =
                 file.getOriginalFilename().replaceAll(XML_EXTENSION, JSON_EXTENSION);
@@ -121,6 +105,22 @@ public class FileManagementService {
         } catch (IOException e) {
             log.error("Failed to delete file: {}", fileName, e);
             throw new InternalErrorException("Failed to delete file: " + fileName, e);
+        }
+    }
+
+    private static List<String> getFilesByDirectory(final String searchIndex, Path targetDirectory) {
+        if (!Files.exists(targetDirectory)) {
+            log.info("Files by provided index is not found!");
+            return List.of();
+        }
+
+        try (Stream<Path> stream = Files.list(targetDirectory)) {
+            return stream.filter(Files::isRegularFile)
+                    .map(path -> path.getFileName().toString())
+                    .toList();
+        } catch (IOException e) {
+            log.error("Failed to list files by index: {}", searchIndex, e);
+            throw new InternalErrorException("Failed to get files by index: " + searchIndex, e);
         }
     }
 
