@@ -1,99 +1,85 @@
-📁 file-management-service
+# file-management-service
 
-A Spring Boot service for uploading, validating, converting, storing, indexing, and retrieving structured files.
-Currently supports XML → JSON transformation with fast indexed search by customer, type, and date.
+![Java Badge](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white) ![Spring Boot Badge](https://img.shields.io/badge/Spring_Boot-F2F4F9?style=for-the-bae&logo=spring-boot) ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white)
 
-🚀 Features
+A Spring Boot service for uploading, validating, converting, storing, indexing, and retrieving structured files.  
+The service currently supports XML → JSON transformation and provides fast search functionality based on **customer**, **type**, and **date** using filesystem indexing.
 
-Upload XML files with strict filename validation
+---
 
-Convert XML to JSON
+## Features
 
-Store JSON files in a structured filesystem
+- Upload XML files with strict filename validation  
+- Convert XML to JSON  
+- Store processed JSON files in a structured filesystem  
+- Prevent duplicate uploads (upload endpoint)  
+- Replace existing files (update endpoint)  
+- Delete files and associated index entries  
+- Retrieve file content by name  
+- Indexed lookup by:
+  - customer  
+  - type  
+  - date  
 
-Prevent duplicate uploads
+Indexes are implemented using filesystem symbolic links for O(1) directory lookup.
 
-Update existing files
+---
 
-Delete files and their index references
+## Business Processes
 
-Retrieve file content by name
+### 1. File Upload
 
-Indexed search by:
+1. Validate filename structure:  
+   `<customer>_<type>_<yyyy-MM-dd>.xml`
+2. Parse XML and convert to JSON.
+3. Save JSON file under:
+   `storage/files/<customer>_<type>_<yyyy-MM-dd>.json`
+4. Create symlink indexes in:
+   - `storage/index-by-customer/<customer>/<file>.json → ../../files/<file>.json`
+   - `storage/index-by-type/<type>/<file>.json → ../../files/<file>.json`
+   - `storage/index-by-date/<yyyy-MM-dd>/<file>.json → ../../files/<file>.json`
+5. Return `201 Created`.
 
-customer
+---
 
-type
+### 2. File Update
 
-date
+- Behaves like upload, except existing files are overwritten.  
+- Symlink index entries are recreated.  
+- Returns `202 Accepted`.
 
-Indexes are implemented using symbolic links, enabling fast lookups.
+---
 
-🧩 Business Processes
-1. File Upload
+### 3. File Delete
 
-Validate filename (<customer>_<type>_<yyyy-MM-dd>.xml)
+- Deletes the main JSON file under `storage/files/`.  
+- Removes symlink references from all index directories.  
+- Returns `204 No Content`.
 
-Parse XML and convert to JSON
+---
 
-Save JSON under:
+### 4. File Retrieval
 
-storage/files/<customer>_<type>_<yyyy-MM-dd>.json
+- Locate JSON file based on the provided filename.  
+- Return file content as a `Resource`.  
+---
 
+### 5. Indexed Search
 
-Create index links:
+#### By Date
+`storage/index-by-date/<yyyy-MM-dd>/`
 
-storage/index-by-customer/<customer>/<file>.json → ../../files/<file>.json
-storage/index-by-type/<type>/<file>.json → ../../files/<file>.json
-storage/index-by-date/<yyyy-MM-dd>/<file>.json → ../../files/<file>.json
+#### By Customer
+`storage/index-by-customer/<customer>/`
 
+#### By Type
+`storage/index-by-type/<type>/`
 
-Return 201 Created with downloadable resource
+---
 
-2. File Update
+## Filesystem Structure
 
-Same as upload, but existing file is replaced
-
-Index links are recreated
-
-Returns 202 Accepted
-
-3. File Delete
-
-Remove main JSON file
-
-Remove all symlink indexes:
-
-index-by-customer/
-index-by-type/
-index-by-date/
-
-
-Return 204 No Content
-
-4. File Retrieval
-
-Return file content by original XML filename
-
-Convert internal .json back to external .xml-styled naming when presenting results
-
-5. Indexed Search
-By Date
-
-Read directory:
-
-storage/index-by-date/<yyyy-MM-dd>/
-
-By Customer
-storage/index-by-customer/<customer>/
-
-By Type
-storage/index-by-type/<type>/
-
-
-All lookups are O(1) directory reads.
-
-📦 Storage Structure
+```
 storage/
   files/
     acme_report_2025-12-09.json
@@ -110,33 +96,47 @@ storage/
   index-by-date/
     2025-12-09/
       acme_report_2025-12-09.json → ../../files/acme_report_2025-12-09.json
+```
 
-🔧 Technologies Used
+---
 
-Java 17+
+## Technologies Used
 
-Spring Boot
+- Java 17+  
+- Spring Boot  
+- Jackson (ObjectMapper, XmlMapper)  
+- Java NIO symbolic links  
+- Custom filename validation  
+- Checkstyle formatting rules  
 
-Jackson (ObjectMapper, XmlMapper)
+---
 
-Symbolic link indexing via Java NIO
+## Filename Format
 
-Custom filename validation
+`<customer>_<type>_<yyyy-MM-dd>.xml`
 
-Checkstyle formatting rules
+### Regex
 
-🔐 Filename Format
-<customer>_<type>_<yyyy-MM-dd>.xml
+`^[a-zA-Z0-9]+_[a-zA-Z0-9]+_\d{4}-\d{2}-\d{2}\.xml$`
 
+### Segments
 
-Regex:
+| Segment   | Description |
+|----------|-------------|
+| customer | Client/company identifier |
+| type     | Document/category type |
+| date     | ISO date `yyyy-MM-dd` |
 
-^[a-zA-Z0-9]+_[a-zA-Z0-9]+_\\d{4}-\\d{2}-\\d{2}\\.xml$
+---
 
+## REST API Endpoints
 
-Segments:
+- `POST /api/v1/files` — upload  
+- `PUT /api/v1/files` — update  
+- `DELETE /api/v1/files/{fileName}` — delete  
+- `GET /api/v1/files/{fileName}` — get file  
+- `GET /api/v1/files/find-by-date/{yyyy-MM-dd}` — search by date  
+- `GET /api/v1/files/find-by-customer/{customer}` — search by customer  
+- `GET /api/v1/files/find-by-type/{type}` — search by type  
 
-Segment	Description
-customer	Client/company
-type	Category/type
-date	ISO date
+---
