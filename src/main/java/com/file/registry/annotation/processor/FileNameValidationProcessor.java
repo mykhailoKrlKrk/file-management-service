@@ -9,7 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class FileNameValidationProcessor implements ConstraintValidator<ValidFileName, MultipartFile> {
 
-  private static final String FILE_NAME_PATTERN = "^[a-zA-Z0-9]+_\\d{1,2}\\.\\d{1,2}\\.\\d{4}\\.xml$";
+  private static final String FILE_NAME_PATTERN =
+      "^[a-zA-Z0-9]+_[a-zA-Z0-9]+_\\d{4}-\\d{2}-\\d{2}\\.xml$";
 
   @Override
   public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
