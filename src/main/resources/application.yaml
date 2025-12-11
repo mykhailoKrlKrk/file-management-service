@@ -4,7 +4,7 @@ server:
 
 spring:
   profiles:
-    active: ${ACTIVE_PROFILE:dev}
+    active: ${ACTIVE_PROFILE:}
   application:
    name: file-management-service
 
@@ -12,3 +12,7 @@ app:
   file-storage:
     path: ${FILE_STORAGE_PATH:${user.dir}/files}
 
+logging:
+  level:
+    web: info
+    root: info
